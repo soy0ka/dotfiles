@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# 로딩바 함수
+loading_bar() {
+    local progress=0
+    local total=25  # 전체 진행률 100%를 나타내는 숫자
+    local bar_length=20  # 로딩바의 길이
+    local symbol_complete="#"
+    local symbol_incomplete="-"
+
+    while [ $progress -le $total ]; do
+        local complete_length=$((progress * bar_length / total))
+        local incomplete_length=$((bar_length - complete_length))
+        local bar=""
+
+        for ((i=0; i<complete_length; i++)); do
+            bar="${bar}${symbol_complete}"
+        done
+
+        for ((i=0; i<incomplete_length; i++)); do
+            bar="${bar}${symbol_incomplete}"
+        done
+
+        echo -ne "\r[${bar}] $progress/$total"
+
+        progress=$((progress + 1))
+        sleep 0.1  # 진행 속도 조절
+    done
+
+    echo -e "\n완료!"
+}
+
+# 로딩바 실행
+loading_bar

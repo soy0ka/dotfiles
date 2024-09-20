@@ -1,0 +1,9 @@
+#!/bin/zsh
+
+# en0 인터페이스의 IP 주소를 가져옵니다
+LOCAL_IP=$(ifconfig en0 | grep "inet " | awk '{print $2}')
+EXTERNAL_IP=$(curl -s http://ipecho.net/plain)
+
+# 결과 출력
+echo "내부 IP: $LOCAL_IP"
+echo "외부 IP: $EXTERNAL_IP"

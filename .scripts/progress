@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# 로딩 애니메이션 함수
+loading_animation() {
+    local delay=0.05  # 애니메이션 속도 조절 (초 단위)
+    local frames=("⠁" "⠂" "⠄" "⡀" "⢀" "⠠" "⠐" "⠈")
+
+    while true; do
+        for frame in "${frames[@]}"; do
+            echo -ne "\r$frame"  # 현재 프레임 출력
+            sleep $delay
+        done
+    done
+}
+
+# 애니메이션 실행
+loading_animation

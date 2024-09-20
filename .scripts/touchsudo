@@ -1,0 +1,20 @@
+#!/bin/zsh
+
+# PAM 구성 파일 경로
+PAM_FILE="/etc/pam.d/sudo"
+
+# 추가할 라인
+LINE="auth       sufficient     pam_tid.so"
+
+# 파일에 라인이 이미 있는지 확인
+if grep -Fxq "$LINE" "$PAM_FILE"; then
+    echo "The line is already present in the file."
+else
+    # 백업 파일 생성
+    sudo cp "$PAM_FILE" "$PAM_FILE.bak"
+    
+    # 'required'가 포함된 첫 번째 줄을 찾아 그 위에 삽입
+    sudo awk -v new_line="$LINE" '/required/ && !inserted {print new_line; inserted=1} {print}' "$PAM_FILE" | sudo tee "$PAM_FILE" > /dev/null
+    
+    echo "The line has been added above the first 'required' line in the file."
+fi

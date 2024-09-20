@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# 로딩바 함수
+loading_bar() {
+    local total=100  # 전체 진행률 100%를 나타내는 숫자
+    local symbol_complete="#"
+    local symbol_incomplete="-"
+    
+    # 터미널 창의 너비를 가져옵니다.
+    local terminal_width=$(tput cols)
+    
+    # 로딩바의 길이는 터미널 창의 너비에서 여유 공간을 뺀 값으로 설정합니다.
+    # 예를 들어, [####----] 45/100 와 같은 형태로 출력하기 위해 10을 뺍니다.
+    local bar_length=$((terminal_width - 10))
+    
+    local progress=0
+
+    while [ $progress -le $total ]; do
+        # 로딩바의 완료된 부분과 미완료 부분의 길이를 계산합니다.
+        local complete_length=$((progress * bar_length / total))
+        local incomplete_length=$((bar_length - complete_length))
+        local bar=""
+
+        for ((i=0; i<complete_length; i++)); do
+            bar="${bar}${symbol_complete}"
+        done
+
+        for ((i=0; i<incomplete_length; i++)); do
+            bar="${bar}${symbol_incomplete}"
+        done
+
+        echo -ne "\r[${bar}] $progress%"
+
+        progress=$((progress + 1))
+        sleep $(jot -r 1 0.01 0.5)  # 진행 속도를 랜덤하게 조절
+    done
+
+    echo -e "\n완료!"
+}
+
+# 로딩바 실행
+loading_bar

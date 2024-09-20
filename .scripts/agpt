@@ -1,0 +1,107 @@
+#!/bin/zsh
+
+# 기본값 설정
+TEMPERATURE=0.7
+MAX_TOKENS=1024
+API_URL="https://api.openai.com/v1/chat/completions"
+
+# 도움말 출력 함수
+show_help() {
+    echo "Usage: $0 <message> [-t <temperature>] [-M <max_tokens>]"
+    echo "  <message>           Required. The message to send to the API."
+    echo "  -t <temperature>    Optional. The temperature to use. Default is $TEMPERATURE."
+    echo "  -M <max_tokens>     Optional. The maximum number of tokens to generate. Default is $MAX_TOKENS."
+    echo "  -h                  Show this help message."
+}
+
+# 옵션 파싱
+while getopts "t:M:h" opt; do
+    case ${opt} in
+        t )
+            TEMPERATURE="$OPTARG"
+            ;;
+        M )
+            MAX_TOKENS="$OPTARG"
+            ;;
+        h )
+            show_help
+            exit 0
+            ;;
+        \? )
+            echo "Invalid option: $OPTARG" 1>&2
+            show_help
+            exit 1
+            ;;
+        : )
+            echo "Invalid option: $OPTARG requires an argument" 1>&2
+            show_help
+            exit 1
+            ;;
+    esac
+done
+shift $((OPTIND -1))
+
+# 남은 인자를 메시지로 사용
+MESSAGE="$1"
+
+# 필수 옵션 체크
+if [ -z "$MESSAGE" ];then
+    echo "Error: Message is required." 1>&2
+    show_help
+    exit 1
+fi
+
+if [ -z "$OPENAI_API_KEY" ]; then
+    echo "Error: Pleas setup your API key to environment variable"
+    echo "run 'export OPEN_API_KEY=YOUR_API_KEY'"
+    
+    exit 1
+fi
+
+REQUEST_DATA=$(cat <<EOF
+{
+  "model": "gpt-3.5-turbo",
+  "messages": [
+    {
+      "role": "user",
+      "content": "$MESSAGE"
+    }
+  ],
+  "max_tokens": $MAX_TOKENS,
+  "temperature": $TEMPERATURE
+}
+EOF
+)
+
+# OpenAI API 호출
+# response=$(curl -s -X POST $API_URL \
+#   -H "Authorization: Bearer $OPENAI_API_KEY" \
+#   -H "Content-Type: application/json" \
+#   -d "$REQUEST_DATA")
+
+# response=$(echo "$response" | tr -d '\000-\037')
+
+# message=$(echo "$response" | jq -r '.choices[0].message.content')
+# message=$(echo "$message" \
+#   | sed 's/\\n/\n/g' \
+#   | sed 's/\\r/\r/g' \
+#   | sed 's/\\t/\t/g' \
+#   | sed 's/\\"/"/g' \
+#   | sed 's/\\b/\b/g' \
+#   | sed 's/\\f/\f/g' \
+#   | sed 's/\\\\/\\/g')
+
+# if command -v glow &> /dev/null; then
+#     echo "$message" | glow
+# else
+#     echo "$message"
+#     echo "Without glow, the output may not be formatted correctly"
+#     echo "You can install glow by running 'brew install glow' or 'cargo install glow'"
+#     echo "For more information, visit https://github.com/charmbracelet/glow"
+# fi
+
+openai api chat.completions.create \
+  -m "gpt-3.5-turbo" \
+  -g "user" "$MESSAGE" \
+  -t "$TEMPERATURE" \
+  -M "$MAX_TOKENS" | glow

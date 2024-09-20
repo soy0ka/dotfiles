@@ -1,0 +1,19 @@
+#!/bin/zsh
+ZSHRC=$HOME/.zshrc
+
+if [ "$1" = "on" ]; then
+  # pyenv 부분 주석처리 풀기
+  sed -i '' 's/^# export PYENV_ROOT/export PYENV_ROOT/' $ZSHRC
+  sed -i '' 's/^# \[\[ -d $PYENV_ROOT/\[\[ -d $PYENV_ROOT/' $ZSHRC
+  sed -i '' 's/^# eval/eval/' $ZSHRC
+  source $ZSHRC
+elif [ "$1" = "off" ]; then
+  # pyenv 부분 주석처리
+  sed -i '' 's/^export PYENV_ROOT/# export PYENV_ROOT/' $ZSHRC
+  sed -i '' 's/^\[\[ -d $PYENV_ROOT/# \[\[ -d $PYENV_ROOT/' $ZSHRC
+  sed -i '' 's/^eval/# eval/' $ZSHRC
+  source $ZSHRC
+else
+  echo "Usage: mpy on|off"
+  exit 1
+fi
