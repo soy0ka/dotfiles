@@ -26,7 +26,7 @@ alias img="chafa"
 alias tar="tar -cvf"
 alias ctar="tar -tvf"
 alias untar="tar -zvf"
-alias tree="tree -I node_modules"
+alias tree="tree -I 'node_modules|.git|dist|build|coverage|.DS_Store'"
 alias usage="top -l 1 | grep -E '^(CPU|PhysMem)'"
 
 # Custom Commands
@@ -34,19 +34,19 @@ export PATH=$PATH:$HOME/.scripts/
 export OPENAI_API_KEY="sk-proj-CN7adDAqI3YEAXl5igz8T3BlbkFJYlES13DeuEXAmeJxLVr1"
 
 # Battery
-battery_pct_prompt() {
-  local pct
-  pct=$(pmset -g batt | grep -Eo "\d+%" | cut -d% -f1)
-  if [ $pct -lt 20 ]; then
-    echo "%{$fg[red]%} $pct%% %{$reset_color%}"
-  elif [ $pct -lt 50 ]; then
-    echo "%{$fg[yellow]%} $pct%% %{$reset_color%"
-  else
-    echo "%{$fg[green]%} $pct%% %{$reset_color%}"
-  fi
-}
-RPROMPT='$(battery_pct_prompt)'
-BATTERY_CHARGING="⚡️"
+# battery_pct_prompt() {
+#   local pct
+#   pct=$(pmset -g batt | grep -Eo "\d+%" | cut -d% -f1)
+#   if [ $pct -lt 20 ]; then
+#     echo "%{$fg[red]%} $pct%% %{$reset_color%}"
+#   elif [ $pct -lt 50 ]; then
+#     echo "%{$fg[yellow]%} $pct%% %{$reset_color%"
+#   else
+#     echo "%{$fg[green]%} $pct%% %{$reset_color%}"
+#   fi
+# }
+# RPROMPT='$(battery_pct_prompt)'
+# BATTERY_CHARGING="⚡️"
 
 # homebrew
 export PATH="$PATH:$HOME/.rvm/bin"
@@ -62,6 +62,9 @@ fi
 # Java env setting 
 # export PATH="/opt/homebrew/opt/openjdk@11/bin:$PATH"
 export JAVA_HOME="/Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home"
+
+# Go Version Manager
+[[ -s "/Users/seoyeon/.gvm/scripts/gvm" ]] && source "/Users/seoyeon/.gvm/scripts/gvm"
 
 # Node Version Manager
 export NVM_DIR="$HOME/.nvm"
@@ -85,3 +88,4 @@ export PATH=$PATH:$ANDROID_HOME/emulator
 export PATH=$PATH:$ANDROID_HOME/tools
 export PATH=$PATH:$ANDROID_HOME/tools/bin
 export PATH=$PATH:$ANDROID_HOME/platform-tools
+
