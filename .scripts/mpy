@@ -1,4 +1,17 @@
 #!/bin/zsh
+
+# ========================================
+# Script Name: mpy
+# Description: A simple script to toggle pyenv
+# Author: soy0ka (me@yoru.icu)
+# Usage: ./mpy on|off
+# Requirements: pyenv
+# Notes:
+#   - this sciprt is for zsh shell.
+#   - you can apply to other shell simply by changing the shebang 
+#     and the source file path.
+# ========================================
+
 ZSHRC=$HOME/.zshrc
 
 if [ "$1" = "on" ]; then

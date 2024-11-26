@@ -1,5 +1,12 @@
 #!/bin/zsh
 
+# ========================================
+# Script Name: myip
+# Description: A simple script to get local and external IP addresses
+# Author: soy0ka (me@yoru.icu)
+# Usage: ./myip
+# ========================================
+
 # en0 인터페이스의 IP 주소를 가져옵니다
 LOCAL_IP=$(ifconfig en0 | grep "inet " | awk '{print $2}')
 EXTERNAL_IP=$(curl -s http://ipecho.net/plain)

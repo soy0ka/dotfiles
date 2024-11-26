@@ -1,0 +1,21 @@
+#!/bin/zsh
+# ========================================
+# Script Name: lowpow
+# Description: A simple script to toggle Low Power Mode on MacOS.
+# Author: soy0ka (me@yoru.icu)
+# Usage: ./lowpow
+# Requirements: MacOS
+# ========================================
+
+
+lowPowerStatus=$(pmset -g | grep "lowpowermode" | awk '{print $2}')
+
+if [ "$lowPowerStatus" = "1" ]; then
+    # If Low Power Mode is on, turn it off
+    echo "Turning off Low Power Mode..."
+    sudo pmset -a lowpowermode 0
+else
+    # If Low Power Mode is off, turn it on
+    echo "Turning on Low Power Mode..."
+    sudo pmset -a lowpowermode 1
+fi

@@ -1,5 +1,15 @@
 #!/bin/bash
 
+# ========================================
+# Script Name: load
+# Description: A simple loading bar script.
+# Author: soy0ka (me@yoru.icu)
+# Usage: ./load
+# Requirements: none
+# Notes:
+#   - 쉘에서 자주 사용되는 로딩바를 구현한 스크립트입니다.
+# ========================================
+
 # 로딩바 함수
 loading_bar() {
     local progress=0

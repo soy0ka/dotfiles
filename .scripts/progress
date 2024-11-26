@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# ========================================
+# Script Name: progress
+# Description: A simple loading animation script. (6 frames)
+# Author: soy0ka (me@yoru.icu)
+# Usage: ./progress
+# ========================================
+
 # 로딩 애니메이션 함수
 loading_animation() {
     local delay=0.05  # 애니메이션 속도 조절 (초 단위)

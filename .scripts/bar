@@ -1,4 +1,12 @@
 #!/bin/bash
+# ========================================
+# Script Name: bar
+# Description: A simple loading bar script. (auto-adjusting)
+# Author: soy0ka (me@yoru.icu)
+# Usage: ./bar
+# Notes:
+#   - This script implements a loading bar that auto-adjusts to the terminal width.
+# ========================================
 
 # 로딩바 함수
 loading_bar() {

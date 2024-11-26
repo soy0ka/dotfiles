@@ -58,20 +58,20 @@ if [ -z "$OPENAI_API_KEY" ]; then
     exit 1
 fi
 
-REQUEST_DATA=$(cat <<EOF
-{
-  "model": "gpt-3.5-turbo",
-  "messages": [
-    {
-      "role": "user",
-      "content": "$MESSAGE"
-    }
-  ],
-  "max_tokens": $MAX_TOKENS,
-  "temperature": $TEMPERATURE
-}
-EOF
-)
+# REQUEST_DATA=$(cat <<EOF
+# {
+#   "model": "gpt-3.5-turbo",
+#   "messages": [
+#     {
+#       "role": "user",
+#       "content": "$MESSAGE"
+#     }
+#   ],
+#   "max_tokens": $MAX_TOKENS,
+#   "temperature": $TEMPERATURE
+# }
+# EOF
+# )
 
 # OpenAI API 호출
 # response=$(curl -s -X POST $API_URL \
@@ -101,7 +101,7 @@ EOF
 # fi
 
 openai api chat.completions.create \
-  -m "gpt-3.5-turbo" \
+  -m "gpt-4o-mini" \
   -g "user" "$MESSAGE" \
   -t "$TEMPERATURE" \
   -M "$MAX_TOKENS" | glow

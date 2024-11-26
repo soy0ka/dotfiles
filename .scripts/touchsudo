@@ -1,5 +1,16 @@
 #!/bin/zsh
 
+# ========================================
+# Script Name: touchsudo
+# Description: A simple script to enable Touch ID for sudo on MacOS.
+# Author: soy0ka (me@yoru.icu)
+# Usage: ./touchsudo
+# Requirements: MacOS, Touch ID
+# Notes:
+#   - This script is for MacOS With Touch ID.
+#   - This setting will be reset after a system update.
+# ========================================
+
 # PAM 구성 파일 경로
 PAM_FILE="/etc/pam.d/sudo"
 
