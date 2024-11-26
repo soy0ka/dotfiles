@@ -63,9 +63,25 @@ else
 fi
 
 # .venv 디렉토리 처리
+# sript below supports only bash
+# if [ -d "${VENV_DIR}" ]; then
+#   echo "${VENV_DIR} 디렉토리가 이미 존재합니다."
+#   read -p "기존 환경을 삭제하고 새로 생성하시겠습니까? [y/N]: " answer
+#   answer=${answer:-N} # 기본값 N
+#   if [[ "$answer" =~ ^[Yy]$ ]]; then
+#     echo "${VENV_DIR} 디렉토리를 삭제합니다..."
+#     rm -rf "${VENV_DIR}"
+#   else
+#     echo "가상환경 생성을 취소합니다."
+#     exit 1
+#   fi
+# fi
+# bash/zsh compatible
 if [ -d "${VENV_DIR}" ]; then
   echo "${VENV_DIR} 디렉토리가 이미 존재합니다."
-  read -p "기존 환경을 삭제하고 새로 생성하시겠습니까? [y/N]: " answer
+  # Zsh 호환성을 위해 read 명령어 수정
+  printf "기존 환경을 삭제하고 새로 생성하시겠습니까? [y/N]: "
+  read answer
   answer=${answer:-N} # 기본값 N
   if [[ "$answer" =~ ^[Yy]$ ]]; then
     echo "${VENV_DIR} 디렉토리를 삭제합니다..."
