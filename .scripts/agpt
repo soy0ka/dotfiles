@@ -1,5 +1,16 @@
 #!/bin/zsh
 
+# ========================================
+# Script Name: agpt
+# Description: A simple script to interact with OpenAI's ChatGPT API.
+# Author: soy0ka (me@yoru.icu)
+# Usage: ./agpt <message> [-t <temperature>] [-M <max_tokens>]
+# Requirements: OpenAI CLI, glow
+# Notes:
+#   - You need to set your OpenAI API key to the environment variable OPENAI_API_KEY.
+# ========================================
+
+
 # 기본값 설정
 TEMPERATURE=0.7
 MAX_TOKENS=1024

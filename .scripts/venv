@@ -1,1 +1,84 @@
-#!/bin/bash
+#!/bin/zsh
+
+# ========================================
+# Script Name: venv
+# Description: A simple script to create a Python virtual environment using Pyenv.
+# Author: soy0ka (me@yoru.icu)
+# Usage: ./venv [PYTHON_VERSION]
+# Requirements: Pyenv, Python
+# ========================================
+
+# 스크립트 실행 중 오류 발생 시 종료
+set -e
+
+# 기본값 설정
+VENV_DIR=".venv"
+
+# Pyenv가 설치되어 있는지 확인
+if ! command -v pyenv &>/dev/null; then
+  echo "Pyenv가 설치되어 있지 않습니다. 설치 후 다시 시도하세요."
+  exit 1
+fi
+
+# 입력된 Python 버전과 가장 호환되는 버전을 찾는 함수
+find_compatible_version() {
+  local input_version="$1"
+  local compatible_version
+
+  # 1. 로컬에 설치된 버전에서 호환 가능한 가장 최신 버전 찾기
+  compatible_version=$(pyenv versions --bare | grep -E "^${input_version}" | tail -n 1)
+
+  # 2. 로컬에 없으면 Pyenv 설치 가능한 버전에서 최신 버전 찾기
+  if [ -z "$compatible_version" ]; then
+    compatible_version=$(pyenv install --list | grep -E "^\s*${input_version}" | tail -n 1 | tr -d '[:space:]')
+  fi
+
+  echo "$compatible_version"
+}
+
+# 사용자 입력 버전 확인
+if [ -z "$1" ]; then
+  # 매개변수가 없을 경우 현재 Pyenv 글로벌 버전 사용
+  PYTHON_VERSION=$(pyenv version-name)
+  echo "Python 버전을 명시하지 않았습니다. 현재 Pyenv 글로벌 버전(${PYTHON_VERSION})을 사용합니다."
+else
+  INPUT_PYTHON_VERSION="$1"
+  PYTHON_VERSION=$(find_compatible_version "$INPUT_PYTHON_VERSION")
+
+  # 호환 가능한 버전이 없으면 종료
+  if [ -z "$PYTHON_VERSION" ]; then
+    echo "Python 버전 ${INPUT_PYTHON_VERSION}에 대한 호환 가능한 버전을 찾을 수 없습니다."
+    exit 1
+  fi
+
+  # Pyenv에 해당 버전이 설치되어 있는지 확인
+  if ! pyenv versions --bare | grep -q "^${PYTHON_VERSION}$"; then
+    echo "Python 버전 ${PYTHON_VERSION}이(가) 설치되어 있지 않습니다. 설치를 시작합니다..."
+    pyenv install "${PYTHON_VERSION}"
+  fi
+
+  # Pyenv 버전 변경
+  echo "Python 버전을 ${PYTHON_VERSION}으로 변경합니다."
+  pyenv local "${PYTHON_VERSION}"
+fi
+
+# .venv 디렉토리 처리
+if [ -d "${VENV_DIR}" ]; then
+  echo "${VENV_DIR} 디렉토리가 이미 존재합니다."
+  read -p "기존 환경을 삭제하고 새로 생성하시겠습니까? [y/N]: " answer
+  answer=${answer:-N} # 기본값 N
+  if [[ "$answer" =~ ^[Yy]$ ]]; then
+    echo "${VENV_DIR} 디렉토리를 삭제합니다..."
+    rm -rf "${VENV_DIR}"
+  else
+    echo "가상환경 생성을 취소합니다."
+    exit 1
+  fi
+fi
+
+echo ".venv 디렉토리에 가상환경을 생성합니다..."
+python -m venv "${VENV_DIR}"
+
+# 성공 메시지
+echo "가상환경이 성공적으로 생성되었습니다."
+source "${VENV_DIR}/bin/activate"
