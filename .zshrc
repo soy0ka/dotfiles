@@ -48,11 +48,10 @@ export PATH=$PATH:$HOME/.scripts/
 
 # env auto load
 if [[ -f "$HOME/.env" ]]; then
-  echo "Loading environment variables from $HOME/.env..."
   while IFS='=' read -r key value; do
     # Ignore empty lines or lines starting with #
     if [[ -n "$key" && "$key" != \#* ]]; then
-      export "$key"="$value"
+      export $key="$value"
     fi
   done < "$HOME/.env"
 fi
