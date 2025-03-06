@@ -13,12 +13,13 @@
 
 # 기본값 설정
 TEMPERATURE=0.7
-MAX_TOKENS=1024
+MODEL="gpt-4o-mini"
+MAX_TOKENS=4096
 API_URL="https://api.openai.com/v1/chat/completions"
 
 # 도움말 출력 함수
 show_help() {
-    echo "Usage: $0 <message> [-t <temperature>] [-M <max_tokens>]"
+    echo "Usage: $0 <message> [-m <model>]  [-t <temperature>] [-M <max_tokens>]"
     echo "  <message>           Required. The message to send to the API."
     echo "  -t <temperature>    Optional. The temperature to use. Default is $TEMPERATURE."
     echo "  -M <max_tokens>     Optional. The maximum number of tokens to generate. Default is $MAX_TOKENS."
@@ -26,8 +27,11 @@ show_help() {
 }
 
 # 옵션 파싱
-while getopts "t:M:h" opt; do
+while getopts "m:t:M:h" opt; do
     case ${opt} in
+		m)
+			MODEL="$OPTARG"
+		    ;;
         t )
             TEMPERATURE="$OPTARG"
             ;;
@@ -112,7 +116,8 @@ fi
 # fi
 
 openai api chat.completions.create \
-  -m "gpt-4o-mini" \
-  -g "user" "$MESSAGE" \
-  -t "$TEMPERATURE" \
-  -M "$MAX_TOKENS" | glow
+	-m "$MODEL" \
+	-g "user" "$MESSAGE" \
+	-t "$TEMPERATURE" \
+	-M "$MAX_TOKENS" | glow
+
