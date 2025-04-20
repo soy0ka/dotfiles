@@ -1,0 +1,18 @@
+#!/bin/zsh
+
+# Function to find an idle random port
+find_idle_port() {
+  while true; do
+    # Generate a random port between 1024 and 65535 (non-well-known ports)
+    PORT=$((RANDOM % 64512 + 1024))
+    
+    # Check if the port is idle
+    if ! lsof -iTCP:$PORT -sTCP:LISTEN &>/dev/null; then
+      echo $PORT
+      return
+    fi
+  done
+}
+
+# Call the function and print the idle port
+find_idle_port
