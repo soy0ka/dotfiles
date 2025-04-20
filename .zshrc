@@ -1,8 +1,16 @@
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
 # ==============================
 # ZSH 기본 설정
 # ==============================
 export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="agnoster"
+ZSH_THEME="powerlevel10k/powerlevel10k"
+# ZSH_THEME="agnoster"
 
 plugins=(
   git
@@ -30,7 +38,7 @@ alias ll="ls -l"
 alias la="ls -al"
 alias lh="ls -alh"
 alias img="chafa"
-alias tree="tree -I 'node_modules|.git|dist|build|coverage|.DS_Store'"
+alias tree="tree -I 'prisma|logs|node_modules|.git|dist|build|coverage|.DS_Store'"
 alias usage="top -l 1 | grep -E '^(CPU|PhysMem)'"
 
 # ==============================
@@ -119,3 +127,14 @@ fi
 # ==============================
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+# ==============================
+# PNPM (Node.js Package Manager)
+# ==============================
+export PNPM_HOME="$HOME/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
