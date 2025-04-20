@@ -5,7 +5,7 @@
 # Description: A simple script to interact with OpenAI's ChatGPT API.
 # Author: soy0ka (me@yoru.icu)
 # Usage: ./agpt <message> [-t <temperature>] [-M <max_tokens>]
-# Requirements: OpenAI CLI, glow
+# Requirements: jq, glow (optional)
 # Notes:
 #   - You need to set your OpenAI API key to the environment variable OPENAI_API_KEY.
 # ========================================
@@ -13,46 +13,58 @@
 
 # 기본값 설정
 TEMPERATURE=0.7
-MODEL="gpt-4o-mini"
+MODEL="gpt-3.5-turbo"
 MAX_TOKENS=4096
 API_URL="https://api.openai.com/v1/chat/completions"
+HISTORY_FILE="${HOME}/.gpt_history.json"
+SESSION_TIMEOUT=900 # 15분  
 
 # 도움말 출력 함수
 show_help() {
-    echo "Usage: $0 <message> [-m <model>]  [-t <temperature>] [-M <max_tokens>]"
-    echo "  <message>           Required. The message to send to the API."
-    echo "  -t <temperature>    Optional. The temperature to use. Default is $TEMPERATURE."
-    echo "  -M <max_tokens>     Optional. The maximum number of tokens to generate. Default is $MAX_TOKENS."
-    echo "  -h                  Show this help message."
+  echo "Usage: $0 <message> [-m <model>]  [-t <temperature>] [-M <max_tokens>]"
+  echo "  <message>           Required. The message to send to the API."
+  echo "  -t <temperature>    Optional. The temperature to use. Default is $TEMPERATURE."
+  echo "  -M <max_tokens>     Optional. The maximum number of tokens to generate. Default is $MAX_TOKENS."
+  echo "  -h                  Show this help message."
+  echo "  -c                  Clear all history."
 }
 
 # 옵션 파싱
-while getopts "m:t:M:h" opt; do
-    case ${opt} in
-		m)
-			MODEL="$OPTARG"
-		    ;;
-        t )
-            TEMPERATURE="$OPTARG"
-            ;;
-        M )
-            MAX_TOKENS="$OPTARG"
-            ;;
-        h )
-            show_help
-            exit 0
-            ;;
-        \? )
-            echo "Invalid option: $OPTARG" 1>&2
-            show_help
-            exit 1
-            ;;
-        : )
-            echo "Invalid option: $OPTARG requires an argument" 1>&2
-            show_help
-            exit 1
-            ;;
-    esac
+while getopts "m:t:M:hc" opt; do
+  case ${opt} in
+  m)
+    MODEL="$OPTARG"
+  ;;
+  t )
+    TEMPERATURE="$OPTARG"
+    ;;
+  M )
+    MAX_TOKENS="$OPTARG"
+    ;;
+  h )
+    show_help
+    exit 0
+    ;;
+  c )
+    if [ -f "$HISTORY_FILE" ]; then
+      rm -f "$HISTORY_FILE"
+      echo "History cleared."
+    else
+      echo "No history file found."
+    fi
+      exit 0
+    ;;
+  \? )
+    echo "Invalid option: $OPTARG" 1>&2
+    show_help
+    exit 1
+    ;;
+  : )
+    echo "Invalid option: $OPTARG requires an argument" 1>&2
+    show_help
+    exit 1
+    ;;
+  esac
 done
 shift $((OPTIND -1))
 
@@ -61,63 +73,65 @@ MESSAGE="$1"
 
 # 필수 옵션 체크
 if [ -z "$MESSAGE" ];then
-    echo "Error: Message is required." 1>&2
-    show_help
-    exit 1
+  echo "Error: Message is required." 1>&2
+  show_help
+  exit 1
 fi
 
 if [ -z "$OPENAI_API_KEY" ]; then
-    echo "Error: Pleas setup your API key to environment variable"
-    echo "run 'export OPEN_API_KEY=YOUR_API_KEY'"
-    
-    exit 1
+  echo "Error: Pleas setup your API key to environment variable"
+  echo "Run: export OPENAI_API_KEY=your_key" 
+  
+  exit 1
 fi
 
-# REQUEST_DATA=$(cat <<EOF
-# {
-#   "model": "gpt-3.5-turbo",
-#   "messages": [
-#     {
-#       "role": "user",
-#       "content": "$MESSAGE"
-#     }
-#   ],
-#   "max_tokens": $MAX_TOKENS,
-#   "temperature": $TEMPERATURE
-# }
-# EOF
-# )
+if [ ! -f "$HISTORY_FILE" ]; then
+  echo '{"meta":{"last_interaction":0}, "messages":[]}' > "$HISTORY_FILE"
+fi
 
-# OpenAI API 호출
-# response=$(curl -s -X POST $API_URL \
-#   -H "Authorization: Bearer $OPENAI_API_KEY" \
-#   -H "Content-Type: application/json" \
-#   -d "$REQUEST_DATA")
+NOW=$(date +%s)
+LAST_INTERACTION=$(jq '.meta.last_interaction' "$HISTORY_FILE")
+TIME_DIFF=$((NOW - LAST_INTERACTION))
 
-# response=$(echo "$response" | tr -d '\000-\037')
+if [ "$TIME_DIFF" -ge "$SESSION_TIMEOUT" ] && [ "$(jq '.messages | length' "$HISTORY_FILE")" -gt 0 ]; then
+  echo "💬 마지막 대화가 $((TIME_DIFF / 60))분 전입니다. 이전 대화를 이어서 하시겠어요? (Y/n): \c"
+  read -r CONT
+  if [[ "$CONT" =~ ^[nN]$ ]]; then
+    echo '{"meta":{"last_interaction":0}, "messages":[]}' > "$HISTORY_FILE"
+    echo "🧼 히스토리가 초기화되었습니다."
+  fi
+fi
 
-# message=$(echo "$response" | jq -r '.choices[0].message.content')
-# message=$(echo "$message" \
-#   | sed 's/\\n/\n/g' \
-#   | sed 's/\\r/\r/g' \
-#   | sed 's/\\t/\t/g' \
-#   | sed 's/\\"/"/g' \
-#   | sed 's/\\b/\b/g' \
-#   | sed 's/\\f/\f/g' \
-#   | sed 's/\\\\/\\/g')
+jq --arg msg "$MESSAGE" \
+  '.messages += [{"role": "user", "content": $msg}]' "$HISTORY_FILE" > "$HISTORY_FILE.tmp" && mv "$HISTORY_FILE.tmp" "$HISTORY_FILE"
 
-# if command -v glow &> /dev/null; then
-#     echo "$message" | glow
-# else
-#     echo "$message"
-#     echo "Without glow, the output may not be formatted correctly"
-#     echo "You can install glow by running 'brew install glow' or 'cargo install glow'"
-#     echo "For more information, visit https://github.com/charmbracelet/glow"
-# fi
+# API 호출 (변경된 messages 경로 반영)
+RESPONSE=$(curl -s -X POST "$API_URL" \
+  -H "Authorization: Bearer $OPENAI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d @<(jq -n \
+    --arg model "$MODEL" \
+    --argjson temp "$TEMPERATURE" \
+    --argjson max "$MAX_TOKENS" \
+    --rawfile raw "$HISTORY_FILE" '
+      ($raw | fromjson) as $hist |
+      {
+        model: $model,
+        temperature: $temp,
+        max_tokens: $max,
+        messages: $hist.messages
+      }'))
 
-openai api chat.completions.create \
-	-m "$MODEL" \
-	-g "user" "$MESSAGE" \
-	-t "$TEMPERATURE" \
-	-M "$MAX_TOKENS" | glow
+# 응답 파싱 & 저장
+REPLY=$(echo "$RESPONSE" | jq -r '.choices[0].message.content')
+jq --arg reply "$REPLY" --argjson now "$NOW" \
+  '.messages += [{"role": "assistant", "content": $reply}] | .meta.last_interaction = $now' "$HISTORY_FILE" > "$HISTORY_FILE.tmp" && mv "$HISTORY_FILE.tmp" "$HISTORY_FILE"
 
+if command -v glow &> /dev/null; then
+  echo "$REPLY" | glow
+else
+  echo "$REPLY"
+  echo "Without glow, the output may not be formatted correctly"
+  echo "You can install glow by running 'brew install glow' or 'cargo install glow'"
+  echo "For more information, visit https://github.com/charmbracelet/glow"
+fi
